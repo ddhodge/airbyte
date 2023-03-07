@@ -28,7 +28,7 @@ async def upload_to_s3(dagger_client: Client, file_to_upload_path: Path, key: st
         .with_file(str(file_to_upload_path), file_to_upload)
         .with_secret_variable("AWS_ACCESS_KEY_ID", aws_access_key_id)
         .with_secret_variable("AWS_SECRET_ACCESS_KEY", aws_secret_access_key)
-        .with_secret_variable("AWS_REGION", aws_region)
+        .with_secret_variable("AWS_DEFAULT_REGION", aws_region)
         .with_exec(["s3", "cp", str(file_to_upload_path), f"s3://{bucket}/{key}"])
         .exit_code()
     )
