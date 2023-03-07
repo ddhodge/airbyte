@@ -17,7 +17,13 @@ from ci_connector_ops.pipelines.models import ConnectorTestReport, Step, StepRes
 from ci_connector_ops.pipelines.utils import get_current_git_branch, get_current_git_revision
 from ci_connector_ops.utils import Connector, ConnectorLanguage, get_changed_connectors_between_branches
 
-REQUIRED_ENV_VARS_FOR_CI = ["GCP_GSM_CREDENTIALS", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_REGION", "TEST_REPORTS_BUCKET_NAME"]
+REQUIRED_ENV_VARS_FOR_CI = [
+    "GCP_GSM_CREDENTIALS",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_DEFAULT_REGION",
+    "TEST_REPORTS_BUCKET_NAME",
+]
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
