@@ -21,7 +21,7 @@ async def upload_to_s3(dagger_client: Client, file_to_upload_path: Path, key: st
     file_to_upload: File = dagger_client.host().directory(".", include=[str(file_to_upload_path)]).file(str(file_to_upload_path))
     aws_access_key_id: Secret = dagger_client.host().env_variable("AWS_ACCESS_KEY_ID").secret()
     aws_secret_access_key: Secret = dagger_client.host().env_variable("AWS_SECRET_ACCESS_KEY").secret()
-    aws_region: Secret = dagger_client.host().env_variable("AWS_REGION").secret()
+    aws_region: Secret = dagger_client.host().env_variable("AWS_DEFAULT_REGION").secret()
     return await (
         dagger_client.container()
         .from_("amazon/aws-cli:latest")
