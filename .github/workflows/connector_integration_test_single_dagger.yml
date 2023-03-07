@@ -5,11 +5,10 @@ on:
     inputs:
       connectors_under_test:
         description: "List of connectors to tests"
-        required: true
       test_modified_connectors:
+        description: "Test only modified connectors on the current branch"
         type: boolean
         default: false
-
   pull_request:
     paths:
       - "airbyte-integrations/connectors/**"
