@@ -53,6 +53,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.STATUS_API_AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: "us-east-2"
           CI_GIT_BRANCH: "augustin/poc/ci-python"
+          TEST_REPORTS_BUCKET_NAME: "airbyte-connector-build-status"
   stop-runner:
     name: "Connectors Integration Test: Stop Build EC2 Runner"
     timeout-minutes: 10
