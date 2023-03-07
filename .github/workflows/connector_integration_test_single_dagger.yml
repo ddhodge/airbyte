@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  start-connectors-integration-test-runner:
+  start-runner:
     name: "Connectors Integration Test: Start Build EC2 Runner"
     timeout-minutes: 10
     runs-on: ubuntu-latest
@@ -27,9 +27,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.SELF_RUNNER_AWS_SECRET_ACCESS_KEY }}
           github-token: ${{ env.PAT }}
           ec2-instance-type: "c5.2xlarge" # https://aws.amazon.com/ec2/instance-types/
-  launch_integration_tests:
+  launch_connector_tests:
     timeout-minutes: 120
-    runs-on: ${{ needs.start-connectors-integration-test-runner.outputs.label }} # run the job on the newly created runner
+    needs:
+    runs-on: ${{ needs.start-runner.outputs.label }} # run the job on the newly created runner
     steps:
       - name: Checkout Airbyte
         uses: actions/checkout@v3
@@ -52,16 +53,16 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.STATUS_API_AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: "us-east-2"
           CI_GIT_BRANCH: "augustin/poc/ci-python"
-  stop-connectors-integration-test-runner:
+  stop-runner:
     name: "Connectors Integration Test: Stop Build EC2 Runner"
     timeout-minutes: 10
     needs:
-      - start-connectors-integration-test-runner # required to get output from the start-runner job
-      - launch_integration_tests # required to wait when the main job is done
+      - start-runner # required to get output from the start-runner job
+      - launch_connector_tests # required to wait when the main job is done
     runs-on: ubuntu-latest
     # Always is required to stop the runner even if the previous job has errors. However always() runs even if the previous step is skipped.
     # Thus, we check for skipped here.
-    if: ${{ always() && needs.start-connectors-integration-test-runner.result != 'skipped'}}
+    if: ${{ always() && needs.start-runner.result != 'skipped'}}
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -81,5 +82,5 @@ jobs:
         with:
           mode: stop
           github-token: ${{ env.PAT }}
-          label: ${{ needs.start-connectors-integration-test-runner.outputs.label }}
-          ec2-instance-id: ${{ needs.start-connectors-integration-test-runner.outputs.ec2-instance-id }}
+          label: ${{ needs.start-runner.outputs.label }}
+          ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
