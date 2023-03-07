@@ -29,7 +29,7 @@ jobs:
           ec2-instance-type: "c5.2xlarge" # https://aws.amazon.com/ec2/instance-types/
   launch_connector_tests:
     timeout-minutes: 120
-    needs:
+    needs: start-runner
     runs-on: ${{ needs.start-runner.outputs.label }} # run the job on the newly created runner
     steps:
       - name: Checkout Airbyte
