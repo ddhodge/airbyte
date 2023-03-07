@@ -33,6 +33,9 @@ jobs:
     steps:
       - name: Checkout Airbyte
         uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.inputs.repo }}
+          ref: ${{ github.event.inputs.gitref }}
       - name: Install Python 3.10
         uses: actions/setup-python@v4
         with:
