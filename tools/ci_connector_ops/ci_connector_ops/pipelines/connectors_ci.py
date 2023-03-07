@@ -205,7 +205,7 @@ def test_connectors(ctx: click.Context, connector_name: str):
 
 @connectors_ci.command()
 @click.pass_context
-@click.option("--diffed-branch", default="origin/master")
+@click.option("--diffed-branch", default="remotes/origin/master")
 def test_all_modified_connectors(ctx: click.Context, diffed_branch: str):
     """Launches a CI pipeline for all the connectors that got modified compared to the DIFFED_BRANCH environment variable.
 
