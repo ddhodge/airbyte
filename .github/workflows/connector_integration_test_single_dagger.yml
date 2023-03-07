@@ -41,6 +41,14 @@ jobs:
         run: pip install --upgrade pip
       - name: Install ci-connector-ops package
         run: pip install --quiet -e ./tools/ci_connector_ops
+      - name: Run connectors-ci
+        run: connectors-ci test-connectors --is-local=False source-pokeapi
+        env:
+          GCP_GSM_CREDENTIALS: ${{ secrets.GCP_GSM_CREDENTIALS }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.STATUS_API_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.STATUS_API_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "us-east-2"
+          CI_GIT_BRANCH: "augustin/poc/ci-python"
   stop-connectors-integration-test-runner:
     name: "Connectors Integration Test: Stop Build EC2 Runner"
     timeout-minutes: 10
