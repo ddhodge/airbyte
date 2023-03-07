@@ -4,9 +4,20 @@ on:
   workflow_dispatch:
     inputs:
       connectors_under_test:
-        description: "List of Airbyte Connector to tests"
+        description: "List of connectors to tests"
         required: true
+      test_modified_connectors:
+        type: boolean
+        default: false
 
+  pull_request:
+    paths:
+      - "airbyte-integrations/connectors/**"
+  push:
+    paths:
+      - "airbyte-integrations/connectors/**"
+    branches:
+      - !master
 jobs:
   start-runner:
     name: "Connectors Integration Test: Start Build EC2 Runner"
@@ -53,8 +64,19 @@ jobs:
         run: pip install --upgrade pip
       - name: Install ci-connector-ops package
         run: pip install --quiet -e ./tools/ci_connector_ops
-      - name: Run connectors-ci
+      - name: Run connectors-ci for specific connectors
+        if: "${{ github.event.inputs.connectors_under_test != '' }}"
         run: connectors-ci --is-local=False test-connectors ${{ github.event.inputs.connectors_under_test }}
+        env:
+          GCP_GSM_CREDENTIALS: ${{ secrets.GCP_GSM_CREDENTIALS }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.STATUS_API_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.STATUS_API_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "us-east-2"
+          CI_GIT_BRANCH: ${{ steps.extract_branch.outputs.branch }}
+          TEST_REPORTS_BUCKET_NAME: "airbyte-connector-build-status"
+      - name: Run connectors-ci for modified connectors
+        if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event.inputs.test_modified_connectors == 'true'
+        run: connectors-ci --is-local=False test-all-modified-connectors
         env:
           GCP_GSM_CREDENTIALS: ${{ secrets.GCP_GSM_CREDENTIALS }}
           AWS_ACCESS_KEY_ID: ${{ secrets.STATUS_API_AWS_ACCESS_KEY_ID }}
