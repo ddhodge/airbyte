@@ -2,6 +2,10 @@ name: POC Connectors CI - test pipeline
 
 on:
   workflow_dispatch:
+    inputs:
+      connectors_under_test:
+        description: "List of Airbyte Connector to tests"
+        required: true
 
 jobs:
   start-runner:
@@ -37,6 +41,10 @@ jobs:
         with:
           repository: ${{ github.event.inputs.repo }}
           ref: ${{ github.event.inputs.gitref }}
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
       - name: Install Python 3.10
         uses: actions/setup-python@v4
         with:
@@ -46,13 +54,14 @@ jobs:
       - name: Install ci-connector-ops package
         run: pip install --quiet -e ./tools/ci_connector_ops
       - name: Run connectors-ci
-        run: connectors-ci --is-local=False test-connectors source-pokeapi
+        run: connectors-ci --is-local=False test-connectors ${{ github.event.inputs.connectors_under_test }}
         env:
           GCP_GSM_CREDENTIALS: ${{ secrets.GCP_GSM_CREDENTIALS }}
           AWS_ACCESS_KEY_ID: ${{ secrets.STATUS_API_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.STATUS_API_AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: "us-east-2"
-          CI_GIT_BRANCH: "augustin/poc/ci-in-python"
+          CI_GIT_BRANCH: ${{ steps.extract_branch.outputs.branch }}
+          CI_GIT_REVISION: ${{ GITHUB_SHA }}
           TEST_REPORTS_BUCKET_NAME: "airbyte-connector-build-status"
   stop-runner:
     name: "Connectors Integration Test: Stop Build EC2 Runner"

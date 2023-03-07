@@ -36,7 +36,7 @@ class ConnectorTestContext:
         if self.is_local:
             return self.dagger_client.host().directory(subdir, exclude=exclude, include=include)
         else:
-            return self.repo.branch(self.git_branch).tree().directory(subdir)
+            return self.repo.branch(self.git_branch).commit(self.git_revision).tree().directory(subdir)
 
     def get_connector_dir(self, exclude=None, include=None) -> Directory:
         return self.get_repo_dir(str(self.connector.code_directory), exclude=exclude, include=include)
